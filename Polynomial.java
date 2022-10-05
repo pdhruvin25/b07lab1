@@ -237,6 +237,7 @@ public class Polynomial {
                 }
             }
         }
+        // System.out.println("\n" + "coeff: " + Arrays.toString(res_arr) + "expo: " + Arrays.toString(res_expo));
         int w_dupes = result_arr_len, wo_dupes = result_arr_len;
         for (int i = 0; i < result_arr_len; i++) {
             if (res_arr[i] == 0) {
@@ -269,13 +270,14 @@ public class Polynomial {
             for (int i = 0; i < result_arr_len; i++) {
                 check = 1;
                 for (int j = 0; j < wo_dupes; j++) {
-                    if (res_arr[i] == arr[j]) {
+                    if (res_expo[i] == expo[j] && res_expo[i] != 0) {
                         check = 0;
                     }
                 }
                 if (check == 1) {
                     arr[idx] = res_arr[i];
                     expo[idx] = res_expo[i];
+                    idx++;
                 }
             }
         }

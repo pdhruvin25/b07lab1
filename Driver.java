@@ -24,9 +24,13 @@ public class Driver {
         new_poly.saveToFile("test2.txt");
         Polynomial new_poly2 = new Polynomial(new File("test2.txt")).multiply(new Polynomial());
         Polynomial new_poly3 = new Polynomial(new File("test2.txt")).add(new Polynomial());
-        
-        // add.saveToFile("random.txt");
-        // //Adding the 0 polynomial
+        Polynomial q5 = p2.add(new Polynomial(new double[] { -1, -1 }, new int[] { 1, 0 }));
+        System.out.println("q5 coef: " + Arrays.toString(q5.arr) + " q5 expo: " + Arrays.toString(q5.expo));
+        Polynomial q6 = p2.multiply(new Polynomial(new double[] { -1, -1 }, new int[] { 1, 0 }));
+        System.out.println("q6 coef: " + Arrays.toString(q6.arr) + " q6 expo: " + Arrays.toString(q6.expo));
+
+        add.saveToFile("random.txt");
+        ////Adding the 0 polynomial
         // for (int i = 0; i < new_poly3.arr.length; i++) {
         //     System.out.print(new_poly3.arr[i] + "x" + new_poly3.expo[i] + ", ");
         // }
