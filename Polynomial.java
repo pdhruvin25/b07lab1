@@ -1,11 +1,15 @@
 import java.io.*;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Scanner;
+
+import javax.lang.model.util.ElementScanner7;
 public class Polynomial {
     double[] arr;
     int[] expo;
     public Polynomial() {
-        arr = new double[1];
-        expo = new int[1];
+        arr = null;
+        expo = null;
     }
     public Polynomial(double[] arr, int [] expo) {
         this.arr = new double[arr.length];
@@ -25,54 +29,59 @@ public class Polynomial {
             String first_line = in.nextLine();
             int[] minuses = new int[first_line.length()/2 + 1];
             int index = 0;
-            int count = 0;
+            int count = 1;
+            if (first_line.charAt(0) == '-')
+            {
+                count = 0;
+            }
+         
             for(int i = 0; i < first_line.length(); i++)
             {
-                if (first_line.charAt(i) == '-' | first_line.charAt(i) == '+') {
-                    count++;
+                if (first_line.charAt(i) == '-' || first_line.charAt(i) == '+') {
                     if (first_line.charAt(i) == '-') {
                         minuses[index] = count;
                         index++;
                     }
+                    count++;
+
                 }
             }
             minuses[index] = -1;
             String[] splited_array = first_line.split("[-+]");
-            this.arr = new double[splited_array.length];
-            this.expo = new int[splited_array.length];
-            int negative = 0;
+            int len = splited_array.length;
             for (int i = 0; i < splited_array.length; i++) {
-                negative = 0;
-                for (int j = 0; j < minuses.length && minuses[j] != -1; j++)
-                {
-                    if(i == minuses[j])
-                        negative = -1;
-                        
+                if(splited_array[i].length() == 0)
+                    len--;
+            }
+            this.arr = new double[len];
+            this.expo = new int[len];
+            int negative = 0;
+           int  idx = 0;
+            for (int i = 0; i < splited_array.length; i++) {
+                if (splited_array[i].length() == 0) {
+                    continue;
                 }
-                if (splited_array[i].indexOf('x') == -1) {
-                    this.expo[i] = 0;
-                    if(negative == -1)
-                        this.arr[i] = -1 * Double.parseDouble(splited_array[i]);
+                negative = 0;
+                for (int j = 0; j < minuses.length && minuses[j] != -1; j++) {
+                    if (idx == minuses[j])
+                        negative = -1;
+                }
+                if (splited_array[i].indexOf("x") == -1) {
+                    this.expo[idx] = 0;
+                    if (negative == -1)
+                        this.arr[idx] = -1 * Double.parseDouble(splited_array[i]);
                     else
-                        this.arr[i] = Double.parseDouble(splited_array[i]);
+                        this.arr[idx] = Double.parseDouble(splited_array[i]);
+                    idx++;
 
                 } else {
                     String[] new_str = splited_array[i].split("x");
-                    if (new_str.length == 1) {
-                        this.expo[i] = 1;
-                        if(negative == -1)
-                            this.arr[i] = -1 * Double.parseDouble(new_str[0]);
-                        else
-                            this.arr[i] = Double.parseDouble(new_str[0]);
-
-                    } else {
-                        this.expo[i] = Integer.parseInt(new_str[1]);
-                        if(negative == -1)
-                            this.arr[i] = -1 * Double.parseDouble(new_str[0]);
-                        else
-                            this.arr[i] = Double.parseDouble(new_str[0]);
-
-                    }
+                    this.expo[idx] = Integer.parseInt(new_str[1]);
+                    if (negative == -1)
+                        this.arr[idx] = -1 * Double.parseDouble(new_str[0]);
+                    else
+                        this.arr[idx] = Double.parseDouble(new_str[0]);
+                    idx++;
                 }
             }
             in.close();
@@ -81,7 +90,14 @@ public class Polynomial {
         }
         
     }
+
     public Polynomial add(Polynomial obj) {
+        if ((this.arr == null || this.expo == null) && obj.arr != null && obj.expo != null)
+            return new Polynomial(obj.arr, obj.expo);
+        if ((obj.arr == null || obj.expo == null) && this.arr != null && this.expo != null)
+            return new Polynomial(this.arr, this.expo);
+        if (obj.arr == null || obj.expo == null || this.arr == null || this.expo == null)
+            return new Polynomial();
         //for expo array
         int result_arr_len = this.expo.length + obj.expo.length, result = 0;
         for (int i = 0; i < this.expo.length; i++) {
@@ -172,6 +188,8 @@ public class Polynomial {
     }
 
     public double evaluate(double x_val) {
+        if(this.arr == null || this.expo == null) 
+            return -1;
         double sum = 0.0;
         for (int i = 0; i < this.arr.length; i++)
             sum += this.arr[i] * Math.pow(x_val, this.expo[i]);
@@ -184,8 +202,14 @@ public class Polynomial {
 
     public Polynomial multiply(Polynomial obj)
     {
+        if ((this.arr == null || this.expo == null) && obj.arr != null && obj.expo != null)
+            return new Polynomial(obj.arr, obj.expo);
+        if ((obj.arr == null || obj.expo == null) && this.arr != null && this.expo != null)
+            return new Polynomial(this.arr, this.expo);
+        if (obj.arr == null || obj.expo == null || this.arr == null || this.expo == null)
+            return new Polynomial();
+        
         int result_arr_len = this.expo.length * obj.expo.length;
-
         //creation of expo that may have dupes
         int[] res_expo = new int[result_arr_len];
         int idx = 0;
@@ -269,9 +293,16 @@ public class Polynomial {
             for (int i = 0; i < this.arr.length; i++) {
                 if (this.expo[i] == 0) {
                     string += this.arr[i];
-                } else if (this.expo[i] == 1) {
-                    string += this.arr[i] + "x";
-                } else {
+                }
+                else if (this.arr[i] > 0 && i != 0)
+                {
+                    string += "+" + this.arr[i] + "x" + this.expo[i];
+                }
+                else if(this.arr[i] > 0 && i == 0)
+                {
+                    string += this.arr[i] + "x" + this.expo[i];
+                }
+                else {
                     string += this.arr[i] + "x" + this.expo[i];
                 }
             }
